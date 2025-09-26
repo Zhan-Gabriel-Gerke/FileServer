@@ -1,4 +1,4 @@
-package com.example.client;
+package com.example.client.network;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-class ClientConnection {
+public class ClientConnection {
     private final DataInputStream input;
     private final DataOutputStream output;
 
