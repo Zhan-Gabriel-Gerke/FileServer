@@ -1,8 +1,7 @@
 package com.example.server;
 
 import com.example.server.network.ServerConnection;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.server.util.JsonUtils;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -11,10 +10,9 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class MainServer {
-    private static final Map<Integer, File> treeMap = takeMap();
+    private static final Map<Integer, File> treeMap = JsonUtils.getMap();
     private static ServerSocket server;
     public static void main(String[] args) throws IOException {
         System.out.println("Server started!");
@@ -52,7 +50,7 @@ public class MainServer {
             String respond = "";
             switch (receivedRequest.split("\\s+")[0]) {
                 case "EXIT":
-                    saveTheMap();
+                    JsonUtils.save();
                     connection.sendMessage("200 Server shutting down");
                     ServerConnection.stopServer();
                     server.close();
@@ -90,7 +88,7 @@ public class MainServer {
         try {
             if (!file.exists() && file.createNewFile()) {
                 Files.write(Paths.get(file.getPath()), fileData);
-                int id = addRecordToMap(file);
+                int id = JsonUtils.addRecord(file);
                 return "200" + " Id " + id;//OK
             } else {
                 return "403";//Error
@@ -107,7 +105,7 @@ public class MainServer {
             File path = new File("C:\\Users\\zange\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data");
             file = new File(path,commands[2]);
         } else {
-            file = getFileById(Integer.parseInt(commands[2]));
+            file = JsonUtils.getFile(Integer.parseInt(commands[2]));
         }
 
         try {
@@ -133,7 +131,7 @@ public class MainServer {
             File path = new File("C:\\Users\\zange\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data");
             file = new File(path,commands[2]);
         } else {
-            file = getFileById(Integer.parseInt(commands[2]));
+            file = JsonUtils.getFile(Integer.parseInt(commands[2]));
         }
         try {
             if (file.exists() && file.isFile()) {
@@ -143,48 +141,5 @@ public class MainServer {
         } catch (Exception ignored){
         }
         return null;
-    }
-    private static int addRecordToMap(File file){
-        Map.Entry<Integer, File> lastEntry = ((TreeMap<Integer, File>) treeMap).lastEntry();
-        if (lastEntry == null){
-            treeMap.put(1, file);
-            return 1;
-        }
-        int id = lastEntry.getKey() + 1;
-        treeMap.put(id, file);
-        saveTheMap();
-        return id;
-    }
-
-    private static File getFileById(int id){
-        return treeMap.get(id);
-    }
-
-    private static void saveTheMap(){
-        ObjectMapper mapper = new ObjectMapper();
-        File file = new File("map.json");
-        try{
-            mapper.writerWithDefaultPrettyPrinter().writeValue(file, treeMap);
-        } catch (IOException ignored){
-        }
-    }
-
-    private static Map<Integer, File> takeMap(){
-        ObjectMapper mapper = new ObjectMapper();
-        File file = new File("map.json");
-        if (!file.exists() || file.length() == 0){
-            return new TreeMap<>();
-        }
-        try{
-            Map<Integer, String> tempMap = mapper.readValue(file, new TypeReference<>() {
-            });
-            Map<Integer, File> resultMap = new TreeMap<>();
-            for (Map.Entry<Integer, String> entry : tempMap.entrySet()){
-                resultMap.put(entry.getKey(), new File(entry.getValue()));
-            }
-            return resultMap;
-        } catch (IOException e){
-            return new TreeMap<>();
-        }
     }
 }
