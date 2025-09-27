@@ -8,7 +8,7 @@ public class PutCommand implements Command{
 
     @Override
     public Response execute(Request request) {
-        FileUtils result = FileUtils.createFile(request.getFirsArg(), request.getData());
+        FileUtils result = FileUtils.createFile(request.getSecondArg(), request.getData());
         if (result.isSuccess()){
             return new Response("200 Id " + result.getId());
         }else {

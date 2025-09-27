@@ -50,13 +50,12 @@ public class MainServer {
             }
             byte[] fileBytes = new byte[0];
             CommandController controller = new CommandController();
-            Request request = new Request(receivedRequest, fileBytes);
             switch (receivedRequest.split("\\s+")[0]) {
                 case "EXIT"://++
                     controller.setCommand(new ExitCommand());
                     return;
                 case "PUT":
-                    byte[] file = connection.getFile();
+                    fileBytes = connection.getFile();
                     controller.setCommand(new PutCommand());
                     break;
                 case "DELETE":
@@ -66,8 +65,13 @@ public class MainServer {
                     controller.setCommand(new GetCommand());
                     break;
             }
+            Request request = new Request(receivedRequest, fileBytes);
             Response response = controller.execute(request);
             //send data to a client
+            connection.sendMessage(response.getMessage());
+            if (response.getData() != null) {
+                connection.sendFile(response.getData());
+            }
             connection.close();
         }
     }

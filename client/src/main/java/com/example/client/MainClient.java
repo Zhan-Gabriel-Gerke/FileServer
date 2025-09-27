@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class MainClient {
     public static void main(String[] args) throws IOException {
         final ClientConnection connection = ClientConnection.startClient();
-        final File file = new File("C:\\Users\\zange\\IdeaProjects\\File Server\\File Server\\task\\src\\client\\data");
+        final File file = new File("C:\\Users\\zange\\IdeaProjects\\FileServer\\client\\src\\main\\java\\com\\example\\client\\data");
         final Scanner sc = new Scanner(System.in);
         System.out.print("Enter action (1 - get a file, 2 - create a file, 3 - delete a file): ");
         String actionString = sc.nextLine();

@@ -6,6 +6,8 @@ import java.nio.file.Files;
 
 public class FileUtils {
 
+
+    private static final File path = new File("C:\\Users\\zange\\IdeaProjects\\FileServer\\server\\src\\main\\java\\com\\example\\server\\data");
     private final boolean success;
     private final int id;
     private final byte[] data;
@@ -39,7 +41,6 @@ public class FileUtils {
         return data;
     }
 
-    private static final File path = new File("C:\\Users\\zange\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data");
 
     public static FileUtils deleteFileByName(String fileName){
         File file = new File(path,fileName);

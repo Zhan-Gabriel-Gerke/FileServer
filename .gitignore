@@ -16,6 +16,9 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+server/src/main/java/com/example/server/data/
+client/src/main/java/com/example/client/data/
+server/src/main/java/com/example/server/AppData
 
 ### Eclipse ###
 .apt_generated
