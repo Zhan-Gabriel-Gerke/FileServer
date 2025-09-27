@@ -16,10 +16,9 @@ public class ExitCommand implements Command{
             JsonUtils.save();
             ServerConnection.stopServer();
             MainServer.server.close();
+            return new Response("200");
         } catch (IOException e) {
             return new Response("400");
         }
-        return new Response("200");
-
     }
 }

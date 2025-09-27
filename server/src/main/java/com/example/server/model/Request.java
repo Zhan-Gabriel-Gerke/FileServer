@@ -9,10 +9,17 @@ public class Request {
 
     public Request(String request, byte[] data) {
         String[] array = request.split(" ", 3);
-        this.type = array[0];
-        this.firsArg = array[1];
-        this.secondArg = array[2];
-        this.data = data;
+        if ("EXIT".equals(array[0])) {
+            this.type = "EXIT";
+            this.firsArg = null;
+            this.secondArg = null;
+            this.data = null;
+        }else {
+            this.type = array[0];
+            this.firsArg = array[1];
+            this.secondArg = array[2];
+            this.data = data;
+        }
     }
 
     private void putDoubleSlash(){

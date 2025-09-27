@@ -11,21 +11,32 @@ public class FileUtils {
     private final boolean success;
     private final int id;
     private final byte[] data;
+    private final File file;
 
     public FileUtils(boolean success, int id) {
         this.success = success;
         this.id = id;
         this.data = new byte[0];
+        this.file = null;
     }
 
     public FileUtils(boolean success, byte[] data) {
         this.success = success;
         this.data = data;
         this.id = 0;
+        this.file = null;
     }
 
     public FileUtils(boolean success) {
         this.success = success;
+        this.data = new byte[0];
+        this.id = 0;
+        this.file = null;
+    }
+
+    public FileUtils(boolean success, File file) {
+        this.success = success;
+        this.file = file;
         this.data = new byte[0];
         this.id = 0;
     }
@@ -41,6 +52,9 @@ public class FileUtils {
         return data;
     }
 
+    public File getFile() {
+        return file;
+    }
 
     public static FileUtils deleteFileByName(String fileName){
         File file = new File(path,fileName);
@@ -50,7 +64,7 @@ public class FileUtils {
     public static FileUtils deleteFileByFile(File file){
         if (file.exists()){
             if (file.delete()){
-                return new FileUtils(true);
+                return new FileUtils(true,  file);
             }
         }
         return new FileUtils(false);

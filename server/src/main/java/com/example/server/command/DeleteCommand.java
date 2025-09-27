@@ -13,6 +13,7 @@ public class DeleteCommand implements Command {
     public Response execute(Request request) {
         if (request.getFirsArg().equals("BY_NAME")){
             FileUtils fileUtils = FileUtils.deleteFileByName(request.getSecondArg());
+            JsonUtils.deleteRecordByFile(fileUtils.getFile());
             if (fileUtils.isSuccess()){
                 return new Response("200");
             }

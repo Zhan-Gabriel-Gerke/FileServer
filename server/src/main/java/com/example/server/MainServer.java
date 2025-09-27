@@ -53,7 +53,7 @@ public class MainServer {
             switch (receivedRequest.split("\\s+")[0]) {
                 case "EXIT"://++
                     controller.setCommand(new ExitCommand());
-                    return;
+                    break;
                 case "PUT":
                     fileBytes = connection.getFile();
                     controller.setCommand(new PutCommand());

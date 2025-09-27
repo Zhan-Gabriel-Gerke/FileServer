@@ -34,7 +34,27 @@ public class JsonUtils {
         return id;
     }
 
+    public static void deleteRecordById(int id){
+        deleteRecordByKey(id);
+    }
 
+    public static void deleteRecordByFile(File file){
+        privateDeleteRecordByFile(file);
+        saveTheMap();
+    }
+
+    private static void privateDeleteRecordByFile(File file){
+        for (Map.Entry<Integer, File> entry : treeMap.entrySet()) {
+            if (entry.getValue().equals(file)){
+                treeMap.remove(entry.getKey());
+            }
+        }
+    }
+
+    private static void deleteRecordByKey(int id){
+        treeMap.remove(id);
+        saveTheMap();
+    }
 
 
     private static int addRecordToMap(File file){
