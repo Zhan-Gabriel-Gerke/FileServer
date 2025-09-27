@@ -21,4 +21,5 @@ public class Response {
     public byte[] getData() {
         return data;
     }
+
 }

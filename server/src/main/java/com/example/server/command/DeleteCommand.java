@@ -8,19 +8,21 @@ import com.example.server.util.JsonUtils;
 import java.io.File;
 
 public class DeleteCommand implements Command {
-    private final Request request;
-
-    public DeleteCommand(Request request) {
-        this.request = request;
-    }
 
     @Override
     public Response execute(Request request) {
         if (request.getFirsArg().equals("BY_NAME")){
-            return new Response(FileUtils.deleteFileByName(request.getSecondArg()));
-        }else {
+            FileUtils fileUtils = FileUtils.deleteFileByName(request.getSecondArg());
+            if (fileUtils.isSuccess()){
+                return new Response("200");
+            }
+        }else if (request.getFirsArg().equals("BY_ID")){
             File file = JsonUtils.getFile(Integer.parseInt(request.getSecondArg()));
-            return new Response(FileUtils.deleteFileByFile(file));
+            FileUtils fileUtils = FileUtils.deleteFileByFile(file);
+            if (fileUtils.isSuccess()){
+                return new Response("200");
+            }
         }
+        return new Response("404");
     }
 }

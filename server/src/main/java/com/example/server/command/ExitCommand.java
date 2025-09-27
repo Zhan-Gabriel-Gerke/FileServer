@@ -9,11 +9,6 @@ import com.example.server.util.JsonUtils;
 import java.io.IOException;
 
 public class ExitCommand implements Command{
-    private final Request request;
-
-    public ExitCommand(Request request) {
-        this.request = request;
-    }
 
     @Override
     public Response execute (Request request){

@@ -4,12 +4,8 @@ public class Request {
 
     private final String type;
     private final String firsArg;
-    private final String secondArg;
+    private String secondArg;
     private final byte[] data;
-
-    public Request(String request) {
-        this(request, null);
-    }
 
     public Request(String request, byte[] data) {
         String[] array = request.split(" ", 3);
@@ -18,6 +14,20 @@ public class Request {
         this.secondArg = array[2];
         this.data = data;
     }
+
+    private void putDoubleSlash(){
+        for (int i = 0; i < secondArg.length(); i++){
+            if (secondArg.charAt(i) == '\\' && secondArg.charAt(i + 1) != '\\'){
+                secondArg = secondArg.substring(0, i) + '\\' + secondArg.substring(i + 1);
+                i++;
+            }
+        }
+    }
+
+    public void normalizeSlash(){
+        putDoubleSlash();
+    }
+
 
     public String getType() {
         return type;

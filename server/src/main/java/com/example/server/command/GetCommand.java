@@ -1,4 +1,31 @@
 package com.example.server.command;
 
-public class GetCommand {
+import com.example.server.model.Request;
+import com.example.server.model.Response;
+import com.example.server.util.FileUtils;
+import com.example.server.util.JsonUtils;
+
+import java.io.File;
+
+public class GetCommand implements Command {
+
+    @Override
+    public Response execute(Request request){
+        FileUtils fileUtils;
+        if (request.getFirsArg().equals("BY_NAME")){
+            request.normalizeSlash();
+            fileUtils = FileUtils.getDataByFileName(request.getSecondArg());
+        }else if (request.getFirsArg().equals("BY_ID")){
+            File file = JsonUtils.getFile(Integer.parseInt(request.getSecondArg()));
+            fileUtils = FileUtils.getDataByFile(file);
+        }else {
+            return new Response("404");
+        }
+        if (fileUtils.isSuccess()){
+            if (fileUtils.getData() != null){
+                return new Response("200", fileUtils.getData());
+            }
+        }
+        return new Response("404");
+    }
 }
