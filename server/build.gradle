@@ -6,16 +6,16 @@ plugins {
 group = 'com.example.server'
 version = '1.0-SNAPSHOT'
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    // Добавьте зависимости, если понадобятся
-    // Например, для логирования:
     implementation 'org.slf4j:slf4j-api:2.0.7'
     implementation 'org.slf4j:slf4j-simple:2.0.7'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'

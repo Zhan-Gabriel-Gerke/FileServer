@@ -27,52 +27,43 @@ public class MainServer {
         try {
             while (ServerConnection.isServerRunning()) {
                 Socket clientSocker = server.accept();
-                new Thread(() -> {
+                ServerConnection connection = new ServerConnection(clientSocker);
+                while (!connection.isClosed()) {
+                    String receivedRequest;
                     try {
-                        start(clientSocker);
+                        receivedRequest = connection.getInput();
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        connection.close();
+                        break;
                     }
-                }).start();
+                    byte[] fileBytes = new byte[0];
+                    CommandController controller = new CommandController();
+                    switch (receivedRequest.split("\\s+")[0]) {
+                        case "EXIT"://++
+                            controller.setCommand(new ExitCommand());
+                            break;
+                        case "PUT":
+                            fileBytes = connection.getFile();
+                            controller.setCommand(new PutCommand());
+                            break;
+                        case "DELETE":
+                            controller.setCommand(new DeleteCommand());
+                            break;
+                        case "GET":
+                            controller.setCommand(new GetCommand());
+                            break;
+                    }
+                    Request request = new Request(receivedRequest, fileBytes);
+                    Response response = controller.execute(request);
+                    //send data to a client
+                    connection.sendMessage(response.getMessage());
+                    if (response.getData() != null) {
+                        connection.sendFile(response.getData());
+                    }
+                    connection.close();
+                }
             }
-        } catch (IOException ignored) {
-        }
-    }
-    private static void start(Socket clientSocker) throws IOException {
-        ServerConnection connection = new ServerConnection(clientSocker);
-        while (!connection.isClosed()) {
-            String receivedRequest;
-            try {
-                receivedRequest = connection.getInput();
-            } catch (IOException e) {
-                connection.close();
-                break;
-            }
-            byte[] fileBytes = new byte[0];
-            CommandController controller = new CommandController();
-            switch (receivedRequest.split("\\s+")[0]) {
-                case "EXIT"://++
-                    controller.setCommand(new ExitCommand());
-                    break;
-                case "PUT":
-                    fileBytes = connection.getFile();
-                    controller.setCommand(new PutCommand());
-                    break;
-                case "DELETE":
-                    controller.setCommand(new DeleteCommand());
-                    break;
-                case "GET":
-                    controller.setCommand(new GetCommand());
-                    break;
-            }
-            Request request = new Request(receivedRequest, fileBytes);
-            Response response = controller.execute(request);
-            //send data to a client
-            connection.sendMessage(response.getMessage());
-            if (response.getData() != null) {
-                connection.sendFile(response.getData());
-            }
-            connection.close();
+        } catch (IOException ignored){
         }
     }
 }
