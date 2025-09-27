@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class MainServer {
     private static final Map<Integer, File> treeMap = JsonUtils.getMap();
-    private static ServerSocket server;
+    public static ServerSocket server;
     public static void main(String[] args) throws IOException {
         System.out.println("Server started!");
         final String address = "127.0.0.1"; // Адрес сервера (локальный)
@@ -49,9 +49,9 @@ public class MainServer {
             byte[] fileBytes = new byte[0];
             String respond = "";
             switch (receivedRequest.split("\\s+")[0]) {
-                case "EXIT":
+                case "EXIT"://++
                     JsonUtils.save();
-                    connection.sendMessage("200 Server shutting down");
+                    connection.sendMessage("200");
                     ServerConnection.stopServer();
                     server.close();
                     connection.close();

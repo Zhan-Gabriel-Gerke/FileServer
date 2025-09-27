@@ -5,6 +5,10 @@ public class Response {
     private final String message;
     private final byte[] data;
 
+    public Response(String message){
+        this(message, null);
+    }
+
     public Response(String message, byte[] data) {
         this.message = message;
         this.data = data;
