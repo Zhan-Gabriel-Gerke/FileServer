@@ -56,7 +56,6 @@ public class JsonUtils {
         saveTheMap();
     }
 
-
     private static int addRecordToMap(File file){
         Map.Entry<Integer, File> lastEntry = ((TreeMap<Integer, File>) treeMap).lastEntry();
         if (lastEntry == null){

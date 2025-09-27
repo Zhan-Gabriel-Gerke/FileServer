@@ -18,8 +18,10 @@ public class DeleteCommand implements Command {
                 return new Response("200");
             }
         }else if (request.getFirsArg().equals("BY_ID")){
-            File file = JsonUtils.getFile(Integer.parseInt(request.getSecondArg()));
+            int id = Integer.parseInt(request.getSecondArg());
+            File file = JsonUtils.getFile(id);
             FileUtils fileUtils = FileUtils.deleteFileByFile(file);
+            JsonUtils.deleteRecordById(id);
             if (fileUtils.isSuccess()){
                 return new Response("200");
             }
