@@ -70,12 +70,12 @@ public class MainClient {
         }
         String respond = connection.getMessage();
         if (action == 1){
-            if (respond.equals("200")){
+            if (respond.startsWith("200")){
                 byte[] byteFile = connection.getFile();
                 System.out.print("The file was downloaded! Specify a name for it:");
                 String name = sc.nextLine();
                 if (name.isEmpty()){
-                    name = identifier;
+                    name = respond.substring(4);
                 }
                 Files.write(Paths.get(file.getPath(), name), byteFile);
             }
