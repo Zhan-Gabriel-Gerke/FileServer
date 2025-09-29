@@ -1,32 +1,31 @@
 package com.example.client;
 
+import com.example.client.command.ActionType;
 import com.example.client.network.ClientConnection;
+import com.example.client.util.FileUtils;
 
-import java.io.File;
+import javax.swing.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class MainClient {
     public static void main(String[] args) throws IOException {
         final ClientConnection connection = ClientConnection.startClient();
-        final File file = new File("C:\\Users\\zange\\IdeaProjects\\FileServer\\client\\src\\main\\java\\com\\example\\client\\data");
         final Scanner sc = new Scanner(System.in);
-        System.out.print("Enter action (1 - get a file, 2 - create a file, 3 - delete a file): ");
-        String actionString = sc.nextLine();
-        int action = 0;
-        if (actionString.equals("exit")){
+        ActionType actionType = UserInputHandler.printInnerInfo();//asks to choose an action
+        String actionStringTemp = sc.nextLine();
+        //int action = 0;
+        if (actionType == ActionType.EXIT){
             connection.sendMessage("EXIT");
-            System.out.println("The request was sent.");
+
             System.exit(0);
-        } else if (actionString.equals("1") || actionString.equals("2") || actionString.equals("3")){
-            action = Integer.parseInt(actionString);
-        }
+        } /*else if (actionStringTemp.equals("1") || actionStringTemp.equals("2") || actionStringTemp.equals("3")){
+            action = Integer.parseInt(actionStringTemp);
+        }*/
         String identifier = "";
         String specialNameForFile = "";
-        if (action == 1 || action == 3){
-            System.out.printf("Do you want to %s the file by name or by id (1 - name, 2 - id): ", action == 1 ? "get" : "delete");
+        if (actionType == ActionType.GET || actionType == ActionType.DELETE){
+            System.out.printf("Do you want to %s the file by name or by id (1 - name, 2 - id): ", actionType == ActionType.GET ? "get" : "delete");
             int nameOrId = sc.nextInt();
             sc.nextLine();
             if (nameOrId == 1){
@@ -36,15 +35,14 @@ public class MainClient {
                 System.out.print("Enter id: ");
                 identifier = sc.nextLine();
             }
-        } else if (action == 2){
+        } else if (actionType == ActionType.PUT){
             System.out.print("Enter name of the file: ");
             identifier = sc.nextLine();
             System.out.print("Enter name of the file to be saved on server: ");
             specialNameForFile = sc.nextLine();
         }
-
-        if (action == 1 || action == 3){
-            String request = createRequest(action, identifier);
+        if (actionType == ActionType.GET || actionType == ActionType.DELETE){
+            String request = createRequest(actionType, identifier);
             try{
                 connection.sendMessage(request);
                 System.out.println("The request was sent.");
@@ -52,24 +50,17 @@ public class MainClient {
                 System.out.println("An error occurred.");
             }
         }
-        else if (action == 2){
+        else if (actionType == ActionType.PUT){
             if (specialNameForFile.isEmpty()){
                 specialNameForFile = identifier;
             }
-            String request = createRequest(action, specialNameForFile);
-            try{
-                connection.sendMessage(request);
-                File finalFile = new File(file, identifier);
-                //checker for file existence
-                byte[] dataBytes = Files.readAllBytes(finalFile.toPath());
-                connection.sendFile(dataBytes);
-                System.out.println("The request was sent.");
-            } catch (Exception e){
-                System.out.println("An error occurred.");
-            }
+            String request = createRequest(actionType, specialNameForFile);
+            connection.sendMessage(request);
+            connection.sendFile(FileUtils.getFile(identifier));
+            System.out.println("The request was sent.");
         }
         String respond = connection.getMessage();
-        if (action == 1){
+        if (actionType == ActionType.GET){
             if (respond.startsWith("200")){
                 byte[] byteFile = connection.getFile();
                 System.out.print("The file was downloaded! Specify a name for it:");
@@ -77,28 +68,29 @@ public class MainClient {
                 if (name.isEmpty()){
                     name = respond.substring(4);
                 }
-                Files.write(Paths.get(file.getPath(), name), byteFile);
+                FileUtils.writeFile(name, byteFile);
             }
-            String result = convertRespond(respond, action);
+            String result = convertRespond(respond, actionType);
             System.out.println(result);
             connection.close();
-        } else if (action == 2 || action == 3){
-            String result = convertRespond(respond, action);
+        } else if (actionType == ActionType.PUT || actionType == ActionType.DELETE){
+            String result = convertRespond(respond, actionType);
             System.out.println(result);
             connection.close();
         }
     }
-    public static String convertRespond(String respond, int action){
+
+    public static String convertRespond(String respond, ActionType actionType){
         String result = "";
         boolean isSuccess = respond.startsWith("200");
-        if (action == 1){
+        if (actionType == ActionType.GET){
             //GET
             if (isSuccess){
                 result = "File saved on the hard drive!";
             } else if (respond.startsWith("404")){
                 result = "The response says that the file was not found!";
             }
-        } else if (action == 2){
+        } else if (actionType == ActionType.PUT){
             //PUT
             if (isSuccess){
                 int id = Integer.parseInt(respond.substring(respond.indexOf(" Id ") + 4));
@@ -106,7 +98,7 @@ public class MainClient {
             } else {
                 result = "The response says that the file was not found!";
             }
-        } else if (action == 3){
+        } else if (actionType == ActionType.DELETE){
             //DELETE
             if (isSuccess){
                 result = "The response says that the file was successfully deleted!";
@@ -117,23 +109,21 @@ public class MainClient {
         return result;
     }
 
-    public static String createRequest(int action, String identifier) {
+    public static String createRequest(ActionType actionType, String identifier) {
         String request;
         if (identifier.matches("\\d+")){
-            request = switch (action) {
-                case 0 -> "EXIT";
-                case 1 -> "GET " + "BY_ID " + identifier;//2
-                case 2 -> "PUT" + " SPECIAL_NAME " + identifier;
-                case 3 -> "DELETE " + "BY_ID "+ identifier;//2
-                default -> "ERROR";
+            request = switch (actionType) {
+                case EXIT -> "EXIT";
+                case GET -> "GET " + "BY_ID " + identifier;//2
+                case PUT -> "PUT" + " SPECIAL_NAME " + identifier;
+                case DELETE -> "DELETE " + "BY_ID "+ identifier;//2
             };
         }else{
-            request = switch (action) {
-                case 0 -> "EXIT";
-                case 1 -> "GET " + "BY_NAME " + identifier;//2
-                case 2 -> "PUT" + " SPECIAL_NAME " + identifier;
-                case 3 -> "DELETE " + "BY_NAME "+ identifier;//2
-                default -> "ERROR";
+            request = switch (actionType) {
+                case EXIT -> "EXIT";
+                case GET -> "GET " + "BY_NAME " + identifier;//2
+                case PUT -> "PUT" + " SPECIAL_NAME " + identifier;
+                case DELETE -> "DELETE " + "BY_NAME "+ identifier;//2
             };
         }
         return request;
