@@ -1,8 +1,8 @@
 package com.example.client.command;
 
-import com.example.client.model.Request;
-import com.example.client.model.Respond;
+import com.example.client.service.FileService;
+import java.util.Scanner;
 
 public interface Command {
-    Respond execute(Request request);
+    void execute(FileService service, Scanner sc);
 }

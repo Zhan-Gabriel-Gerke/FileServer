@@ -1,4 +1,4 @@
-package com.example.client.command;
+package com.example.client.model;
 
 public enum ActionType {
     GET("1"),
