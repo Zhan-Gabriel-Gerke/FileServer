@@ -2,7 +2,6 @@ package com.example.client;
 
 import com.example.client.command.*;
 import com.example.client.command.CommandController;
-import com.example.client.network.ClientConnection;
 import com.example.client.service.FileService;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class MainClient {
             };
 
             if (command != null) {
-                controller.runCommand(command, sc);
+                controller.execute(command, sc);
                 if (command instanceof ExitCommand) {
                     System.out.println("Exiting...");
                     break;

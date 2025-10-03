@@ -12,7 +12,7 @@ public class CommandController {
         this.service = service;
     }
 
-    public void runCommand(Command command, Scanner sc) {
+    public void execute(Command command, Scanner sc) {
         command.execute(service, sc);
     }
 }
