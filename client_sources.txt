@@ -1,0 +1,13 @@
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\MainClient.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\command\Command.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\command\CommandController.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\command\DeleteCommand.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\command\ExitCommand.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\command\GetCommand.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\command\PutCommand.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\model\ActionType.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\model\Request.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\model\Respond.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\network\ClientConnection.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\service\FileService.java
+C:\Users\zange\IdeaProjects\FileServer\client\src\main\java\com\example\client\util\FileUtils.java

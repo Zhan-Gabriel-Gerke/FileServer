@@ -21,8 +21,8 @@ public class MainServer {
     public static ServerSocket server;
     public static void main(String[] args) throws IOException {
         System.out.println("Server started!");
-        final String address = "127.0.0.1"; // Адрес сервера (локальный)
-        final int port = 23456; // Порт сервера
+        final String address = "127.0.0.1";
+        final int port = 23456;
         server = new ServerSocket(port, 50, InetAddress.getByName(address));
         try {
             while (ServerConnection.isServerRunning()) {
@@ -55,7 +55,6 @@ public class MainServer {
                     }
                     Request request = new Request(receivedRequest, fileBytes);
                     Response response = controller.execute(request);
-                    //send data to a client
                     connection.sendMessage(response.getMessage());
                     if (response.getData() != null) {
                         connection.sendFile(response.getData());

@@ -79,25 +79,34 @@ public class JsonUtils {
         }
     }
 
-    private static void takeMap(){
+    private static void takeMap() {
         ObjectMapper mapper = new ObjectMapper();
-        if (!mapFile.exists() || mapFile.length() == 0){
-            if (treeMap.isEmpty()){
+        if (!mapFile.exists() || mapFile.length() == 0) {
+            if (treeMap.isEmpty()) {
                 treeMap = new TreeMap<>();
             }
+            return;
         }
-        try{
-            Map<Integer, String> tempMap = mapper.readValue(mapFile, new TypeReference<>() {
-            });
+
+        try {
+            Map<String, String> tempMap = mapper.readValue(mapFile, new TypeReference<>() {});
+
             Map<Integer, File> resultMap = new TreeMap<>();
-            for (Map.Entry<Integer, String> entry : tempMap.entrySet()){
-                resultMap.put(entry.getKey(), new File(entry.getValue()));
+            for (Map.Entry<String, String> entry : tempMap.entrySet()) {
+                try {
+                    resultMap.put(Integer.valueOf(entry.getKey()), new File(entry.getValue()));
+                } catch (NumberFormatException ex) {
+
+                    System.err.println("Wrong key JSON " + entry.getKey());
+                }
             }
             treeMap = resultMap;
-        } catch (IOException e){
-            if (treeMap.isEmpty()){
+        } catch (IOException e) {
+            if (treeMap.isEmpty()) {
                 treeMap = new TreeMap<>();
             }
+            e.printStackTrace();
         }
     }
+
 }
