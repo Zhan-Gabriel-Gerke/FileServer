@@ -16,8 +16,6 @@ build/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-server/src/main/java/com/example/server/data/
-client/src/main/java/com/example/client/data/
 server/src/main/java/com/example/server/AppData
 
 ### Eclipse ###
@@ -44,3 +42,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Project Specific ###
+server/src/main/java/com/example/server/data/
+client/src/main/java/com/example/client/data/
+*.class

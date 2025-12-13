@@ -36,9 +36,9 @@ public class MainServer {
         try {
             while (ServerConnection.isServerRunning()) {
                 //Waiting for client connection
-                Socket clientSocker = server.accept();
+                Socket clientSocket = server.accept();
                 //Pass client to worker thread
-                executor.submit(() -> handleClient(clientSocker));
+                executor.submit(() -> handleClient(clientSocket));
             }
         } catch (IOException e){
             //Socket closed with exit command
