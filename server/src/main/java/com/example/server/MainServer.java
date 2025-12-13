@@ -19,24 +19,29 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainServer {
+    // Initialize database on startup
     private static final Map<Integer, File> treeMap = JsonUtils.getMap();
     public static ServerSocket server;
 
+    // Thread pool for handling clients
     private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     public static void main(String[] args) throws IOException {
         System.out.println("Server started!");
         final String address = "127.0.0.1";
         final int port = 23456;
+
         server = new ServerSocket(port, 50, InetAddress.getByName(address));
+
         try {
             while (ServerConnection.isServerRunning()) {
-                //Main threat waiting for connection
+                //Waiting for client connection
                 Socket clientSocker = server.accept();
-
+                //Pass client to worker thread
                 executor.submit(() -> handleClient(clientSocker));
             }
         } catch (IOException e){
+            //Socket closed with exit command
             System.out.println("Server stopped.");
         } finally {
             executor.shutdown();
@@ -45,19 +50,15 @@ public class MainServer {
 
     private static void handleClient(Socket clientSock) {
         try (ServerConnection connection = new ServerConnection(clientSock)) {
-            while (!connection.isClosed()) {
-                String receivedRequest;
-                try{
-                    receivedRequest = connection.getInput();
-                } catch (IOException e){
-                    break;
-                }
+                String receivedRequest = connection.getInput();
+
+                //Parse command type
+                String[] parts = receivedRequest.split("\\s+");
+                String commandType = parts[0];
+
 
                 byte[] fileBytes = new byte[0];
-
                 CommandController controller = new CommandController();
-
-                String commandType = receivedRequest.split("\\s+")[0];
 
                 switch (commandType) {
                     case "EXIT":
@@ -65,13 +66,16 @@ public class MainServer {
                         break;
                     case "PUT":
                         fileBytes = connection.getFile();
-                        controller.setCommand(new  PutCommand());
+                        controller.setCommand(new PutCommand());
                         break;
                     case "DELETE":
                         controller.setCommand(new DeleteCommand());
                         break;
                     case "GET":
                         controller.setCommand(new GetCommand());
+                        break;
+                    default:
+                        System.out.println("Unknown command: " + commandType);
                         break;
                 }
 
@@ -83,8 +87,6 @@ public class MainServer {
                 if (response.getData() != null) {
                     connection.sendFile(response.getData());
                 }
-                break;
-            }
         } catch (IOException e){
             e.printStackTrace();
         }
