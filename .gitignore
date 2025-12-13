@@ -44,6 +44,7 @@ bin/
 .DS_Store
 
 ### Project Specific ###
-server/src/main/java/com/example/server/data/
-client/src/main/java/com/example/client/data/
+###server/src/main/java/com/example/server/data/
+###client/src/main/java/com/example/client/data/
+**/data/
 *.class
