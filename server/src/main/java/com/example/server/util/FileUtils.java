@@ -8,7 +8,7 @@ public class FileUtils {
 
 
     private static final String DATA_FOLDER = "server" + File.separator + "data";
-    private static final File path = new File(DATA_FOLDER);
+    private static  File path = new File(DATA_FOLDER);
 
     static {
         if (!path.exists()) {
@@ -50,6 +50,11 @@ public class FileUtils {
         this.file = file;
         this.data = new byte[0];
         this.id = 0;
+    }
+
+    //Method for Unit Testing to injection a temporary folder
+    public static void setRootPath(File newPath){
+        path = newPath;
     }
 
     public boolean isSuccess() {

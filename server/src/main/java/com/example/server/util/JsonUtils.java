@@ -11,16 +11,26 @@ import java.util.TreeMap;
 public class JsonUtils {
 
     private static Map<Integer, File> treeMap = new TreeMap<>();
-    private static final String DATA_FOLDER = "server" + File.separator + "data";
-    private static final File mapFile = new File(DATA_FOLDER, "map.json");
+    private static String dataFolder = "server" + File.separator + "data";
+    private static File mapFile = new File(dataFolder, "map.json");
 
     static {
-        File dir = new File(DATA_FOLDER);
+        ensureDataFolderExists();
+    }
+
+    public static void ensureDataFolderExists(){
+        File dir = new File(dataFolder);
         if (!dir.exists()) {
             dir.mkdirs();
         }
+        mapFile = new File(dataFolder, "map.json");
     }
 
+    public static void setRootPath(File newPath){
+        dataFolder = newPath.getAbsolutePath();
+        mapFile = new File(dataFolder, "map.json");
+        treeMap.clear();
+    }
 
     public static synchronized Map<Integer, File> getMap(){
         takeMap();
@@ -37,6 +47,7 @@ public class JsonUtils {
     }
 
     public static synchronized int addRecord(File file){
+        takeMap();
         int id = addRecordToMap(file);
         saveTheMap();
         return id;
