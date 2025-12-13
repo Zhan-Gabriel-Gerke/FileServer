@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ServerConnection{
+public class ServerConnection implements AutoCloseable {
     private final DataInputStream input;
     private final DataOutputStream output;
     private boolean isClosed = false;

@@ -11,7 +11,15 @@ import java.util.TreeMap;
 public class JsonUtils {
 
     private static Map<Integer, File> treeMap = new TreeMap<>();
-    private static final File mapFile = new File("C:\\Users\\zange\\IdeaProjects\\FileServer\\server\\src\\main\\java\\com\\example\\server\\AppData\\map.json");
+    private static final String DATA_FOLDER = "server" + File.separator + "data";
+    private static final File mapFile = new File(DATA_FOLDER, "map.json");
+
+    static {
+        File dir = new File(DATA_FOLDER);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+    }
 
 
     public static synchronized Map<Integer, File> getMap(){
@@ -44,11 +52,7 @@ public class JsonUtils {
     }
 
     private static void privateDeleteRecordByFile(File file){
-        for (Map.Entry<Integer, File> entry : treeMap.entrySet()) {
-            if (entry.getValue().equals(file)){
-                treeMap.remove(entry.getKey());
-            }
-        }
+        treeMap.entrySet().removeIf(entry -> entry.getValue().equals(file));
     }
 
     private static void deleteRecordByKey(int id){
@@ -57,12 +61,13 @@ public class JsonUtils {
     }
 
     private static int addRecordToMap(File file){
-        Map.Entry<Integer, File> lastEntry = ((TreeMap<Integer, File>) treeMap).lastEntry();
-        if (lastEntry == null){
+        if (treeMap.isEmpty()) {
             treeMap.put(1, file);
             return 1;
         }
-        int id = lastEntry.getKey() + 1;
+        // Иначе берем последний ключ + 1
+        Integer lastKey = ((TreeMap<Integer, File>) treeMap).lastKey();
+        int id = lastKey + 1;
         treeMap.put(id, file);
         return id;
     }
@@ -75,19 +80,20 @@ public class JsonUtils {
         ObjectMapper mapper = new ObjectMapper();
         try{
             mapper.writerWithDefaultPrettyPrinter().writeValue(mapFile, treeMap);
-        } catch (IOException ignored){
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 
     private static void takeMap() {
-        ObjectMapper mapper = new ObjectMapper();
         if (!mapFile.exists() || mapFile.length() == 0) {
-            if (treeMap.isEmpty()) {
+            if (treeMap == null) {
                 treeMap = new TreeMap<>();
             }
             return;
         }
 
+        ObjectMapper mapper = new ObjectMapper();
         try {
             Map<String, String> tempMap = mapper.readValue(mapFile, new TypeReference<>() {});
 
@@ -96,16 +102,13 @@ public class JsonUtils {
                 try {
                     resultMap.put(Integer.valueOf(entry.getKey()), new File(entry.getValue()));
                 } catch (NumberFormatException ex) {
-
-                    System.err.println("Wrong key JSON " + entry.getKey());
+                    System.err.println("Skipping invalid key in JSON: " + entry.getKey());
                 }
             }
             treeMap = resultMap;
         } catch (IOException e) {
-            if (treeMap.isEmpty()) {
-                treeMap = new TreeMap<>();
-            }
-            e.printStackTrace();
+            System.err.println("Error reading DB: " + e.getMessage());
+            treeMap = new TreeMap<>();
         }
     }
 

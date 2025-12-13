@@ -15,10 +15,15 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainServer {
     private static final Map<Integer, File> treeMap = JsonUtils.getMap();
     public static ServerSocket server;
+
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
+
     public static void main(String[] args) throws IOException {
         System.out.println("Server started!");
         final String address = "127.0.0.1";
@@ -26,43 +31,62 @@ public class MainServer {
         server = new ServerSocket(port, 50, InetAddress.getByName(address));
         try {
             while (ServerConnection.isServerRunning()) {
+                //Main threat waiting for connection
                 Socket clientSocker = server.accept();
-                ServerConnection connection = new ServerConnection(clientSocker);
-                while (!connection.isClosed()) {
-                    String receivedRequest;
-                    try {
-                        receivedRequest = connection.getInput();
-                    } catch (IOException e) {
-                        connection.close();
-                        break;
-                    }
-                    byte[] fileBytes = new byte[0];
-                    CommandController controller = new CommandController();
-                    switch (receivedRequest.split("\\s+")[0]) {
-                        case "EXIT"://++
-                            controller.setCommand(new ExitCommand());
-                            break;
-                        case "PUT":
-                            fileBytes = connection.getFile();
-                            controller.setCommand(new PutCommand());
-                            break;
-                        case "DELETE":
-                            controller.setCommand(new DeleteCommand());
-                            break;
-                        case "GET":
-                            controller.setCommand(new GetCommand());
-                            break;
-                    }
-                    Request request = new Request(receivedRequest, fileBytes);
-                    Response response = controller.execute(request);
-                    connection.sendMessage(response.getMessage());
-                    if (response.getData() != null) {
-                        connection.sendFile(response.getData());
-                    }
-                    connection.close();
-                }
+
+                executor.submit(() -> handleClient(clientSocker));
             }
-        } catch (IOException ignored){
+        } catch (IOException e){
+            System.out.println("Server stopped.");
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    private static void handleClient(Socket clientSock) {
+        try (ServerConnection connection = new ServerConnection(clientSock)) {
+            while (!connection.isClosed()) {
+                String receivedRequest;
+                try{
+                    receivedRequest = connection.getInput();
+                } catch (IOException e){
+                    break;
+                }
+
+                byte[] fileBytes = new byte[0];
+
+                CommandController controller = new CommandController();
+
+                String commandType = receivedRequest.split("\\s+")[0];
+
+                switch (commandType) {
+                    case "EXIT":
+                        controller.setCommand(new  ExitCommand());
+                        break;
+                    case "PUT":
+                        fileBytes = connection.getFile();
+                        controller.setCommand(new  PutCommand());
+                        break;
+                    case "DELETE":
+                        controller.setCommand(new DeleteCommand());
+                        break;
+                    case "GET":
+                        controller.setCommand(new GetCommand());
+                        break;
+                }
+
+                Request request = new Request(receivedRequest, fileBytes);
+                Response response = controller.execute(request);
+
+                connection.sendMessage(response.getMessage());
+
+                if (response.getData() != null) {
+                    connection.sendFile(response.getData());
+                }
+                break;
+            }
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 }

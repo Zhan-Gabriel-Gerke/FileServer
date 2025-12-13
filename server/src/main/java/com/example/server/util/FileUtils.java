@@ -7,7 +7,18 @@ import java.nio.file.Files;
 public class FileUtils {
 
 
-    private static final File path = new File("C:\\Users\\zange\\IdeaProjects\\FileServer\\server\\src\\main\\java\\com\\example\\server\\data");
+    private static final String DATA_FOLDER = "server" + File.separator + "data";
+    private static final File path = new File(DATA_FOLDER);
+
+    static {
+        if (!path.exists()) {
+            boolean created = path.mkdir();
+            if (!created) {
+                System.out.println("Created data directory: " + path.getAbsolutePath());
+            }
+        }
+    }
+
     private final boolean success;
     private final int id;
     private final byte[] data;
@@ -81,6 +92,7 @@ public class FileUtils {
                 byte[] data = Files.readAllBytes(file.toPath());
                 return new FileUtils(true, data);
             } catch (IOException e) {
+                e.printStackTrace();
                 return new FileUtils(false);
             }
         }
@@ -98,6 +110,7 @@ public class FileUtils {
                 return new FileUtils(false);
             }
         } catch (IOException e) {
+            e.printStackTrace();
             return new FileUtils(false);
         }
     }
