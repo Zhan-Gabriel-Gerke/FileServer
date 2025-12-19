@@ -16,7 +16,7 @@ public class DeleteCommand implements Command {
         sc.nextLine();
 
         String identifier = (choice == 1) ? prompt(sc, "Enter filename: ") : prompt(sc, "Enter id: ");
-        String arg = (choice == 1) ? "BY_NAME" : "BY_ID";
+        String arg = (choice == 1) ? "name" : "id";
 
         Request request = new Request.Builder()
                 .type(ActionType.DELETE)

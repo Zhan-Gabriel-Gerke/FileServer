@@ -18,28 +18,11 @@ public class FileUtils {
         }
     }
 
-    public static byte[] getFile(String fileName) {
-        try {
-            File filePath = new File(fileDir, fileName);
-            if (!filePath.exists()) {
-                System.out.println("File not found: " + fileName);
-                return new byte[0];
-            }
-            return Files.readAllBytes(filePath.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
+    public static File getSafeObject(String fileName) throws IOException{
+        File file = new File(fileDir, fileName).getCanonicalFile();
+        if (!file.getPath().startsWith(fileDir.getCanonicalPath())){
+            throw new SecurityException("Security Error: Path traversal attempt!");
         }
-    }
-
-    public static void writeFile(String fileName, byte[] content) {
-        try {
-            File filePath = new File(fileDir, fileName);
-            Files.write(filePath.toPath(), content);
-            System.out.println("File saved to: " + filePath.getAbsolutePath());
-        } catch (IOException e) {
-            System.out.println("Cannot write file: " + fileName);
-            e.printStackTrace();
-        }
+        return file;
     }
 }

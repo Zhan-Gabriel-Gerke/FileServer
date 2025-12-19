@@ -3,7 +3,9 @@ package com.example.client.service;
 import com.example.client.model.Request;
 import com.example.client.model.Respond;
 import com.example.client.network.ClientConnection;
+import com.example.client.model.ActionType;
 
+import java.io.File;
 import java.io.IOException;
 
 public class FileService {
@@ -12,37 +14,56 @@ public class FileService {
     }
 
     public Respond sendRequest(Request request) {
+        return execute(conn -> {
+            conn.sendMessage(formatRequest(request));
+            return new Respond(conn.getMessage(), null);
+        });
+    }
+
+    public Respond uploadFile(Request request, File destFile) {
+        return execute(conn -> {
+            conn.sendMessage(formatRequest(request));       //text
+            conn.sendFile(destFile);                        //bytes
+            return new Respond(conn.getMessage(), null);
+        });
+    }
+
+    public Respond downloadFile(Request request, File destFile) {
+        return execute(conn -> {
+            conn.sendMessage(formatRequest(request));
+            String response = conn.getMessage();
+
+            if (response.startsWith("200")) {
+                conn.getFile(destFile);
+                return new Respond("200", null);
+            }
+            return new Respond(response, null);
+        });
+    }
+
+    private Respond execute(ConnectionAction action) {
         try (ClientConnection connection = ClientConnection.startClient()) {
-            connection.sendMessage(requestToString(request));
-
-            if (request.getData() != null && request.getData().length > 0) {
-                connection.sendFile(request.getData());
-            }
-
-            String message = connection.getMessage();
-            byte[] data = null;
-
-            if (request.getType().name().equals("GET") && message.startsWith("200")) {
-                data = connection.getFile();
-            }
-
-            return new Respond(message, data);
-
+            return action.apply(connection);
         } catch (IOException e) {
             e.printStackTrace();
-            return new Respond("Error: " + e.getMessage());
+            return new Respond("Error: " + e.getMessage(), null);
         }
     }
 
-    private String requestToString(Request request) {
-        String identifier = request.getIdentifier() != null ? request.getIdentifier() : "";
-        String arg = request.getArg() != null ? request.getArg() : "";
+    private String formatRequest(Request request) {
+        String id = request.getIdentifier() == null ? "" : request.getIdentifier();
+        String arg = request.getArg() == null ? "" : request.getArg();
 
         return switch (request.getType()) {
-            case GET -> "GET " + arg + " " + identifier;
-            case PUT -> "PUT SPECIAL_NAME " + identifier;
-            case DELETE -> "DELETE " + arg + " " + identifier;
+            case GET -> "GET " + arg + " " + id;
+            case PUT -> "PUT FILE_NAME " + id;
+            case DELETE -> "DELETE " + arg + " " + id;
             case EXIT -> "EXIT";
         };
+    }
+
+    @FunctionalInterface
+    private interface ConnectionAction {
+        Respond apply(ClientConnection conn) throws IOException;
     }
 }

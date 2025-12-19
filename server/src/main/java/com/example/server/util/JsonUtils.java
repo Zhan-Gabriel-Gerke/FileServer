@@ -99,6 +99,16 @@ public class JsonUtils {
             if (treeMap == null) {
                 treeMap = new TreeMap<>();
             }
+            // Scan the data directory for existing files
+            File[] files = new File(dataFolder).listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && !file.getName().equals("map.json")) {
+                        addRecordToMap(file);
+                    }
+                }
+                saveTheMap();
+            }
             return;
         }
 

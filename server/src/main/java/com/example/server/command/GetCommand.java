@@ -13,21 +13,22 @@ public class GetCommand implements Command {
     public Response execute(Request request){
         FileUtils fileUtils;
         File file = null;
-        if (request.getFirstArg().equals("BY_NAME")){
+        if (request.getFirstArg().equals("name")){
             request.normalizeSlash();
             fileUtils = FileUtils.getDataByFileName(request.getSecondArg());
-        }else if (request.getFirstArg().equals("BY_ID")){
+            file = fileUtils.getFile();
+        }else if (request.getFirstArg().equals("id")){
             file = JsonUtils.getFile(Integer.parseInt(request.getSecondArg()));
+            if (file == null) {
+                return new Response("404");
+            }
             fileUtils = FileUtils.getDataByFile(file);
-            
-            String fileName = file.getName();
-            
         }else {
             return new Response("404");
         }
         if (fileUtils.isSuccess()){
             if (fileUtils.getData() != null){
-                return new Response("200 " + file.getName(), fileUtils.getData());
+                return new Response("200", fileUtils.getData());
             }
         }
         return new Response("404");

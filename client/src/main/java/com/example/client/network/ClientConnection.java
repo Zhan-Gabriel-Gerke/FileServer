@@ -1,8 +1,6 @@
 package com.example.client.network;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -26,17 +24,34 @@ public class ClientConnection implements AutoCloseable {
         return input.readUTF();
     }
 
-    public void sendFile(byte[] fileData) throws IOException {
-        output.writeInt(fileData.length);
-        output.write(fileData);
+    public void sendFile(File fileData) throws IOException {
+        output.writeInt((int) fileData.length());
+        try (FileInputStream fileInput = new FileInputStream(fileData)){
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = fileInput.read(buffer)) != -1){
+                output.write(buffer, 0, read);
+            }
+        }
         output.flush();
     }
 
-    public byte[] getFile() throws IOException {
+    public void getFile(File targetFile) throws IOException {
         int length = input.readInt();
-        byte[] fileData = new byte[length];
-        input.readFully(fileData);
-        return fileData;
+
+        try(FileOutputStream fileOutput = new FileOutputStream(targetFile)) {
+            byte[] buffer = new byte[8192];
+            int totalRead = 0;
+            while (totalRead < length) {
+                int bytesToRead = Math.min(buffer.length, length - totalRead);
+                int read = input.read(buffer, 0, bytesToRead);
+                if (read == -1) throw new IOException("Connection lost");
+
+                fileOutput.write(buffer, 0, read);
+                totalRead += read;
+            }
+            fileOutput.flush();
+        }
     }
 
     public static ClientConnection startClient() throws IOException {
