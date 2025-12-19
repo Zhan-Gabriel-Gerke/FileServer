@@ -33,11 +33,36 @@ public class ServerConnection implements AutoCloseable {
         output.write(fileData);
     }
 
-    public byte[] getFile() throws IOException {
-        int length = input.readInt();
-        byte[] fileData = new byte[length];
-        input.readFully(fileData, 0, fileData.length);
-        return fileData;
+//    public byte[] getFile() throws IOException {
+//        int length = input.readInt();
+//        byte[] fileData = new byte[length];
+//        input.readFully(fileData, 0, fileData.length);
+//        return fileData;
+//    }
+    public void receivedFile(java.io.File targetFile) throws IOException{
+        //read the lenght of the file
+        int lenght = input.readInt();
+
+        //Open a stream to file on disk
+        try (java.io.FileOutputStream fileOutput = new java.io.FileOutputStream(targetFile)) {
+            byte[] buffer = new byte[8192]; //buffer 8 Kb
+            int totalRead = 0;
+
+            //Transfer loop
+            while (totalRead < lenght){
+                int bytesToRead = Math.min(buffer.length, lenght - totalRead);
+                int read = input.read(buffer, 0, bytesToRead);
+
+                if (read == -1){
+                    throw new IOException("Unexpected end of stream");
+                }
+                //writing to drive
+                fileOutput.write(buffer, 0, read);
+                totalRead += read;
+            }
+            //clean the buffers on the drive
+            fileOutput.flush();
+        }
     }
 
     public static void stopServer() {

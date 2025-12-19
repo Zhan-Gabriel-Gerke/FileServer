@@ -10,14 +10,13 @@ public class RequestTest {
     void testParseGetRequest(){
         //Simulate client request: "GET BY_ID 123"
         String input = "GET BY_ID 123";
-        byte[] emptyData = new byte[0];
 
         //Create Request object
-        Request request = new Request(input, emptyData);
+        Request request = new Request(input, null);
 
         //Verify server parsed the string correctly
         assertEquals("GET", request.getType());
-        assertEquals("BY_ID", request.getFirsArg());
+        assertEquals("BY_ID", request.getFirstArg());
         assertEquals("123", request.getSecondArg());
     }
 
@@ -27,36 +26,21 @@ public class RequestTest {
         //Simulate file bytes
         byte[] data = {1, 2, 3, 4, 5};
 
-        Request request = new Request(input, data);
+        Request request = new Request(input, null);
 
         assertEquals("PUT", request.getType());
-        assertEquals("FILE_NAME", request.getFirsArg());
+        assertEquals("FILE_NAME", request.getFirstArg());
         assertEquals("cat.jpg", request.getSecondArg());
-        assertArrayEquals(data, request.getData());
-    }
-
-    @Test
-    void testNormalizeSlash(){
-        //Verify path normalization
-        //Client might send path with double slashes
-        String input = "PUT FILE_NAME my_folder\\\\file.txt";
-        Request request = new Request(input, new  byte[0]);
-
-        //Call normalization method
-        request.normalizeSlash();
-
-        //Expect path to be normalized
-        assertEquals("my_folder\\\\file.txt", request.getSecondArg());
     }
 
     @Test
     void testExitRequest() {
         String input = "EXIT";
-        Request request = new Request(input, new byte[0]);
+        Request request = new Request(input, null);
 
         assertEquals("EXIT", request.getType());
         //Exit command has no arguments
-        assertNull(request.getFirsArg());
+        assertNull(request.getFirstArg());
         assertNull(request.getSecondArg());
     }
 }

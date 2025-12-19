@@ -13,10 +13,10 @@ public class GetCommand implements Command {
     public Response execute(Request request){
         FileUtils fileUtils;
         File file = null;
-        if (request.getFirsArg().equals("BY_NAME")){
+        if (request.getFirstArg().equals("BY_NAME")){
             request.normalizeSlash();
             fileUtils = FileUtils.getDataByFileName(request.getSecondArg());
-        }else if (request.getFirsArg().equals("BY_ID")){
+        }else if (request.getFirstArg().equals("BY_ID")){
             file = JsonUtils.getFile(Integer.parseInt(request.getSecondArg()));
             fileUtils = FileUtils.getDataByFile(file);
             

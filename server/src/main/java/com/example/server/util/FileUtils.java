@@ -73,8 +73,13 @@ public class FileUtils {
     }
 
     public static FileUtils deleteFileByName(String fileName){
-        File file = new File(path,fileName);
-        return deleteFileByFile(file);
+        try {
+            File file = new File(path, fileName);
+            return deleteFileByFile(file);
+        } catch (SecurityException e) {
+            System.err.println("Delete attempt rejected: " + e.getMessage());
+            return new FileUtils(false);
+        }
     }
 
     public static FileUtils deleteFileByFile(File file){
@@ -87,8 +92,13 @@ public class FileUtils {
     }
 
     public static FileUtils getDataByFileName(String fileName){
-        File file = new File(path,fileName);
-        return getDataByFile(file);
+        try {
+            File file = new File(path, fileName);
+            return getDataByFile(file);
+        } catch (SecurityException e){
+            System.err.println("Read attempt rejected: " + e.getMessage());
+            return new FileUtils(false);
+        }
     }
 
     public static FileUtils getDataByFile(File file){
@@ -105,8 +115,8 @@ public class FileUtils {
     }
 
     public static FileUtils createFile(String fileName, byte[] data){
-        File file = new File(path,fileName);
         try {
+            File file = getFileSafe(fileName);
             if (!file.exists() && file.createNewFile()) {
                 Files.write(file.toPath(), data);
                 int id = JsonUtils.addRecord(file);
@@ -114,10 +124,20 @@ public class FileUtils {
             } else {
                 return new FileUtils(false);
             }
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             e.printStackTrace();
             return new FileUtils(false);
         }
+    }
+
+    public static File getFileSafe(String fileName) throws IOException {
+        File root = path.getCanonicalFile();
+        File file = new File(root, fileName).getCanonicalFile();
+
+        if (!file.getPath().startsWith(root.getPath())) {
+            throw new SecurityException("Access denied: path traversal attempt detected.");
+        }
+        return file;
     }
 
 }

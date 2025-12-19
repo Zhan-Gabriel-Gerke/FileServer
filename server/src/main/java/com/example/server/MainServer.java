@@ -24,7 +24,7 @@ public class MainServer {
     public static ServerSocket server;
 
     // Thread pool for handling clients
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
     public static void main(String[] args) throws IOException {
         System.out.println("Server started!");
@@ -51,21 +51,14 @@ public class MainServer {
     private static void handleClient(Socket clientSock) {
         try (ServerConnection connection = new ServerConnection(clientSock)) {
                 String receivedRequest = connection.getInput();
-
-                //Parse command type
-                String[] parts = receivedRequest.split("\\s+");
-                String commandType = parts[0];
-
-
-                byte[] fileBytes = new byte[0];
+                Request request = new Request(receivedRequest, connection);
                 CommandController controller = new CommandController();
 
-                switch (commandType) {
+                switch (request.getType()) {
                     case "EXIT":
                         controller.setCommand(new  ExitCommand());
                         break;
                     case "PUT":
-                        fileBytes = connection.getFile();
                         controller.setCommand(new PutCommand());
                         break;
                     case "DELETE":
@@ -75,11 +68,10 @@ public class MainServer {
                         controller.setCommand(new GetCommand());
                         break;
                     default:
-                        System.out.println("Unknown command: " + commandType);
+                        System.out.println("Unknown command: " + request.getType());
                         break;
                 }
 
-                Request request = new Request(receivedRequest, fileBytes);
                 Response response = controller.execute(request);
 
                 connection.sendMessage(response.getMessage());

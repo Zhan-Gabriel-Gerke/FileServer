@@ -11,13 +11,13 @@ public class DeleteCommand implements Command {
 
     @Override
     public Response execute(Request request) {
-        if (request.getFirsArg().equals("BY_NAME")){
+        if (request.getFirstArg().equals("BY_NAME")){
             FileUtils fileUtils = FileUtils.deleteFileByName(request.getSecondArg());
             JsonUtils.deleteRecordByFile(fileUtils.getFile());
             if (fileUtils.isSuccess()){
                 return new Response("200");
             }
-        }else if (request.getFirsArg().equals("BY_ID")){
+        }else if (request.getFirstArg().equals("BY_ID")){
             int id = Integer.parseInt(request.getSecondArg());
             File file = JsonUtils.getFile(id);
             FileUtils fileUtils = FileUtils.deleteFileByFile(file);

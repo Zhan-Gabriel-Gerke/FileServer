@@ -16,7 +16,7 @@ public class Request {
         this.nameForReceiver = builder.nameForReceiver;
     }
 
-    // Геттеры для всех полей
+    // Getters
     public ActionType getType() { return type; }
     public String getIdentifier() { return identifier; }
     public byte[] getData() { return data; }

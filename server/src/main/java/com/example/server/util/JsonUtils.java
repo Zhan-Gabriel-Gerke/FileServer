@@ -16,6 +16,7 @@ public class JsonUtils {
 
     static {
         ensureDataFolderExists();
+        takeMap();
     }
 
     public static void ensureDataFolderExists(){
@@ -33,7 +34,6 @@ public class JsonUtils {
     }
 
     public static synchronized Map<Integer, File> getMap(){
-        takeMap();
         return treeMap;
     }
 
@@ -42,22 +42,21 @@ public class JsonUtils {
     }
 
     public static synchronized File getFile (int id){
-        takeMap();
         return treeMap.get(id);
     }
 
     public static synchronized int addRecord(File file){
-        takeMap();
         int id = addRecordToMap(file);
         saveTheMap();
         return id;
     }
 
-    public static void deleteRecordById(int id){
+    public static synchronized void deleteRecordById(int id){
         deleteRecordByKey(id);
+        saveTheMap();
     }
 
-    public static void deleteRecordByFile(File file){
+    public static synchronized void deleteRecordByFile(File file){
         privateDeleteRecordByFile(file);
         saveTheMap();
     }
@@ -68,7 +67,6 @@ public class JsonUtils {
 
     private static void deleteRecordByKey(int id){
         treeMap.remove(id);
-        saveTheMap();
     }
 
     private static int addRecordToMap(File file){

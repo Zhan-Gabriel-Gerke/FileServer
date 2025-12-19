@@ -1,25 +1,24 @@
 package com.example.server.model;
 
+import com.example.server.network.ServerConnection;
+
 public class Request {
 
     private final String type;
-    private final String firsArg;
+    private final String firstArg;
     private String secondArg;
-    private final byte[] data;
+    private final ServerConnection connection;
 
-    public Request(String request, byte[] data) {
+    public Request(String request, ServerConnection connection) {
+        this.connection = connection;
         String[] array = request.split(" ", 3);
-        if ("EXIT".equals(array[0])) {
-            this.type = "EXIT";
-            this.firsArg = null;
-            this.secondArg = null;
-            this.data = null;
-        }else {
-            this.type = array[0];
-            this.firsArg = array[1];
-            this.secondArg = array[2];
-            this.data = data;
-        }
+
+        //parsing request
+        String[] parts = request.trim().split("\\s+", 3);
+
+        this.type = parts.length > 0 ? parts[0] : "";
+        this.firstArg = parts.length > 1 ? parts[1] : null;
+        this.secondArg = parts.length > 2 ? parts[2] : null;
     }
 
     private void putDoubleSlash(){
@@ -35,20 +34,19 @@ public class Request {
         putDoubleSlash();
     }
 
+    public ServerConnection getConnection(){
+        return connection;
+    }
 
     public String getType() {
         return type;
     }
 
-    public String getFirsArg() {
-        return firsArg;
+    public String getFirstArg() {
+        return firstArg;
     }
 
     public String getSecondArg() {
         return secondArg;
-    }
-
-    public byte[] getData() {
-        return data;
     }
 }
